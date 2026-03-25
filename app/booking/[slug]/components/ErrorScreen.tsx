@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Theme, DEFAULT_THEME } from '@/lib/types'
+import { Theme, DEFAULT_THEME, computeCssVars } from '@/lib/types'
 
 interface ErrorScreenProps {
   error: string
@@ -10,18 +10,20 @@ interface ErrorScreenProps {
 }
 
 export default function ErrorScreen({ error, theme = DEFAULT_THEME, onRetry }: ErrorScreenProps) {
+  const cssVars = computeCssVars(theme)
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{
         background: `linear-gradient(135deg, ${theme.bgFrom}, ${theme.bgTo})`,
-      }}
+        ...cssVars,
+      } as React.CSSProperties}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full text-center border border-white/20"
+        className="bg-[var(--s2)] backdrop-blur-xl rounded-3xl p-8 max-w-md w-full text-center border border-[var(--b2)]"
       >
         {/* Error Icon */}
         <motion.div
@@ -49,7 +51,7 @@ export default function ErrorScreen({ error, theme = DEFAULT_THEME, onRetry }: E
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl font-display text-white font-semibold mb-3"
+          className="text-2xl font-display text-[var(--t-primary)] font-semibold mb-3"
         >
           Ups, nekaj je šlo narobe
         </motion.h2>
@@ -58,7 +60,7 @@ export default function ErrorScreen({ error, theme = DEFAULT_THEME, onRetry }: E
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-white/70 mb-6"
+          className="text-[var(--t-muted)] mb-6"
         >
           {error}
         </motion.p>

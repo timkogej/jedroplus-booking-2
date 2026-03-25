@@ -9,11 +9,11 @@ interface BookingStepperProps {
 }
 
 const steps = [
-  { number: 1, label: 'Oseba' },
+  { number: 1, label: 'Kategorija' },
   { number: 2, label: 'Storitev' },
-  { number: 3, label: 'Termin' },
-  { number: 4, label: 'Podatki' },
-  { number: 5, label: 'Potrditev' },
+  { number: 3, label: 'Oseba' },
+  { number: 4, label: 'Termin' },
+  { number: 5, label: 'Podatki' },
 ]
 
 export default function BookingStepper({ currentStep, theme }: BookingStepperProps) {
@@ -21,7 +21,7 @@ export default function BookingStepper({ currentStep, theme }: BookingStepperPro
     <div className="w-full max-w-3xl mx-auto px-4">
       <div className="flex items-center justify-between relative">
         {/* Progress line background */}
-        <div className="absolute left-0 right-0 top-5 h-0.5 bg-white/20 -translate-y-1/2 z-0" />
+        <div className="absolute left-0 right-0 top-5 h-0.5 bg-[var(--b2)] -translate-y-1/2 z-0" />
 
         {/* Active progress line */}
         <motion.div
@@ -49,8 +49,8 @@ export default function BookingStepper({ currentStep, theme }: BookingStepperPro
               <motion.div
                 className="w-10 h-10 rounded-full flex items-center justify-center font-display font-semibold text-sm transition-all duration-300"
                 style={{
-                  backgroundColor: isActive || isCompleted ? theme.primaryColor : 'rgba(255,255,255,0.1)',
-                  color: isActive || isCompleted ? 'white' : 'rgba(255,255,255,0.5)',
+                  backgroundColor: isActive || isCompleted ? theme.primaryColor : 'var(--s2)',
+                  color: isActive || isCompleted ? 'white' : 'var(--t-faint)',
                   boxShadow: isActive ? `0 4px 20px ${theme.primaryColor}60` : 'none',
                   border: isActive ? `2px solid ${theme.secondaryColor}` : '2px solid transparent',
                 }}
@@ -79,7 +79,7 @@ export default function BookingStepper({ currentStep, theme }: BookingStepperPro
               <span
                 className="mt-2 text-xs font-display font-medium hidden sm:block"
                 style={{
-                  color: isActive || isCompleted ? 'white' : 'rgba(255,255,255,0.5)',
+                  color: isActive || isCompleted ? 'var(--t-primary)' : 'var(--t-faint)',
                 }}
               >
                 {step.label}

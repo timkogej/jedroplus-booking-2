@@ -131,7 +131,7 @@ export default function StepConfirmation({
       transition={{ duration: 0.5 }}
       className="w-full max-w-lg mx-auto"
     >
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 text-center relative overflow-hidden">
+      <div className="bg-[var(--s2)] backdrop-blur-xl rounded-3xl p-8 border border-[var(--b2)] text-center relative overflow-hidden">
         {/* Success Icon */}
         <motion.div
           initial={{ scale: 0 }}
@@ -166,7 +166,7 @@ export default function StepConfirmation({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-3xl font-display font-semibold text-white mb-3"
+          className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-3"
         >
           Rezervacija uspešna!
         </motion.h2>
@@ -175,7 +175,7 @@ export default function StepConfirmation({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="text-white/70 font-display mb-8"
+          className="text-[var(--t-soft)] font-display mb-8"
         >
           {bookingConfirmation?.message || 'Vaša rezervacija je bila potrjena. Hvala za zaupanje!'}
         </motion.p>
@@ -186,38 +186,38 @@ export default function StepConfirmation({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="bg-white/5 rounded-2xl p-5 mb-6 text-left"
+            className="bg-[var(--s1)] rounded-2xl p-5 mb-6 text-left"
           >
-            <h3 className="text-white/80 font-display text-sm font-medium mb-4 uppercase tracking-wide">
+            <h3 className="text-[var(--t-soft)] font-display text-sm font-medium mb-4 uppercase tracking-wide">
               Podatki rezervacije
             </h3>
 
             <div className="space-y-3">
               {bookingConfirmation.storitev && (
                 <div>
-                  <p className="text-white/50 font-display text-xs">Storitev</p>
-                  <p className="text-white font-display font-medium">{bookingConfirmation.storitev}</p>
+                  <p className="text-[var(--t-faint)] font-display text-xs">Storitev</p>
+                  <p className="text-[var(--t-primary)] font-display font-medium">{bookingConfirmation.storitev}</p>
                 </div>
               )}
 
               {bookingConfirmation.datum && (
                 <div>
-                  <p className="text-white/50 font-display text-xs">Datum</p>
-                  <p className="text-white font-display font-medium">{bookingConfirmation.datum}</p>
+                  <p className="text-[var(--t-faint)] font-display text-xs">Datum</p>
+                  <p className="text-[var(--t-primary)] font-display font-medium">{bookingConfirmation.datum}</p>
                 </div>
               )}
 
               {bookingConfirmation.cas && (
                 <div>
-                  <p className="text-white/50 font-display text-xs">Čas</p>
-                  <p className="text-white font-display font-medium">{bookingConfirmation.cas}</p>
+                  <p className="text-[var(--t-faint)] font-display text-xs">Čas</p>
+                  <p className="text-[var(--t-primary)] font-display font-medium">{bookingConfirmation.cas}</p>
                 </div>
               )}
 
               {price != null && (
                 <>
-                  <div className="border-t border-white/10 pt-3 flex items-center justify-between">
-                    <p className="text-white/50 font-display text-xs">Cena termina</p>
+                  <div className="border-t border-[var(--b1)] pt-3 flex items-center justify-between">
+                    <p className="text-[var(--t-faint)] font-display text-xs">Cena termina</p>
                     <p
                       className="font-display font-bold text-lg"
                       style={{ color: theme.primaryColor }}
@@ -243,7 +243,7 @@ export default function StepConfirmation({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleAddToCalendar}
-              className="flex-1 py-3 rounded-xl font-display font-medium text-sm text-white/80 bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl font-display font-medium text-sm text-[var(--t-soft)] bg-[var(--s2)] border border-[var(--b2)] hover:bg-[var(--s3)] transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -255,7 +255,7 @@ export default function StepConfirmation({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleShare}
-              className="flex-1 py-3 rounded-xl font-display font-medium text-sm text-white/80 bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl font-display font-medium text-sm text-[var(--t-soft)] bg-[var(--s2)] border border-[var(--b2)] hover:bg-[var(--s3)] transition-all flex items-center justify-center gap-2"
             >
               {copied ? (
                 <>
@@ -300,7 +300,7 @@ export default function StepConfirmation({
             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.15)' }}
             whileTap={{ scale: 0.98 }}
             onClick={onStartOver}
-            className="w-full py-4 rounded-xl font-display font-semibold text-white/80 bg-white/10 border border-white/20 transition-all duration-300"
+            className="w-full py-4 rounded-xl font-display font-semibold text-[var(--t-soft)] bg-[var(--s2)] border border-[var(--b2)] hover:bg-[var(--s3)] transition-all duration-300"
           >
             Začni znova
           </motion.button>

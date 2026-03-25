@@ -11,6 +11,7 @@ import {
   CustomerData,
   BookingConfirmation,
   DEFAULT_THEME,
+  computeCssVars,
 } from '@/lib/types'
 import { initBooking, getAvailableSlots, createBooking } from '@/lib/api'
 import LoadingScreen from './components/LoadingScreen'
@@ -24,6 +25,8 @@ import StepDateTimeSelection from './components/StepDateTimeSelection'
 import StepCustomerDetails from './components/StepCustomerDetails'
 import StepConfirmation from './components/StepConfirmation'
 
+// Step order: 1=Category, 2=Service, 3=Employee, 4=Date/Time, 5=Customer, 6=Confirmation
+
 const initialCustomerData: CustomerData = {
   firstName: '',
   lastName: '',
@@ -31,6 +34,7 @@ const initialCustomerData: CustomerData = {
   email: '',
   gender: '',
   notes: '',
+  privacyConsent: false,
   marketingConsent: false,
 }
 
@@ -45,13 +49,12 @@ export default function BookingPage() {
 
   // Navigation state
   const [currentStep, setCurrentStep] = useState(1)
-  const [isSubStep, setIsSubStep] = useState(false)
 
   // Selection state
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null)
-  const [anyPerson, setAnyPerson] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null)
+  const [anyPerson, setAnyPerson] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
 
@@ -68,6 +71,7 @@ export default function BookingPage() {
 
   // Derived values
   const theme = data?.theme || DEFAULT_THEME
+  const cssVars = useMemo(() => computeCssVars(theme), [theme])
 
   const companyName = useMemo(() => {
     if (!data?.company) return ''
@@ -83,14 +87,12 @@ export default function BookingPage() {
     return data?.employees_ui.find((e) => e.id === selectedEmployeeId) || null
   }, [data, selectedEmployeeId])
 
-  // Filter services by category
+  // Filter services by selected category
   const filteredServices = useMemo(() => {
     if (!data || !selectedCategory) return []
 
-    // First try exact match
     let services = data.servicesByCategory[selectedCategory.id]
 
-    // If not found, try case-insensitive
     if (!services) {
       const categoryKey = Object.keys(data.servicesByCategory).find(
         (key) => key.toLowerCase() === selectedCategory.id.toLowerCase()
@@ -98,7 +100,6 @@ export default function BookingPage() {
       services = categoryKey ? data.servicesByCategory[categoryKey] : []
     }
 
-    // Fallback: filter all services by category_id
     if (!services || services.length === 0) {
       services = data.services.filter(
         (s) => s.category_id === selectedCategory.id
@@ -108,6 +109,23 @@ export default function BookingPage() {
     return services
   }, [data, selectedCategory])
 
+  // Compute eligible employee IDs for selected service (null = no mapping, use all)
+  const eligibleEmployeeIds = useMemo((): string[] | null => {
+    if (!data?.employeesByServiceId || !selectedService) return null
+    const ids = data.employeesByServiceId[String(selectedService.id)]
+    if (ids === undefined) return null // no mapping → show all
+    return ids.map(String)
+  }, [data, selectedService])
+
+  // Filter employees by selected service
+  const filteredEmployees = useMemo((): EmployeeUI[] => {
+    if (!data) return []
+    if (eligibleEmployeeIds === null) return data.employees_ui // no mapping → all
+    if (eligibleEmployeeIds.length === 0) return [] // explicitly empty → none eligible
+    const eligibleSet = new Set(eligibleEmployeeIds)
+    return data.employees_ui.filter((emp) => eligibleSet.has(String(emp.id)))
+  }, [data, eligibleEmployeeIds])
+
   // Initialize booking data
   useEffect(() => {
     const init = async () => {
@@ -115,15 +133,6 @@ export default function BookingPage() {
         setLoading(true)
         const bookingData = await initBooking(slug)
         setData(bookingData)
-
-        // Auto-skip employee selection if single employee mode and only 1 employee
-        if (
-          bookingData.ui.employeeSelection.mode === 'single' &&
-          bookingData.employees_ui.length === 1
-        ) {
-          setSelectedEmployeeId(bookingData.employees_ui[0].id)
-          setCurrentStep(2)
-        }
       } catch (err) {
         console.error('Failed to initialize booking:', err)
         setError(err instanceof Error ? err.message : 'Prišlo je do napake pri nalaganju.')
@@ -150,6 +159,7 @@ export default function BookingPage() {
           serviceId: selectedService.id,
           employeeId: selectedEmployeeId,
           anyPerson,
+          eligibleEmployeeIds: anyPerson ? (eligibleEmployeeIds ?? undefined) : undefined,
         })
         setAvailableSlots(response.slots || [])
       } catch (err) {
@@ -161,35 +171,51 @@ export default function BookingPage() {
     }
 
     fetchSlots()
-  }, [selectedDate, selectedService, selectedEmployeeId, anyPerson, data, slug])
+  }, [selectedDate, selectedService, selectedEmployeeId, anyPerson, data, slug, eligibleEmployeeIds])
 
   // Navigation handlers
   const handleNext = useCallback(() => {
-    if (currentStep === 2 && !isSubStep) {
-      // Moving from category to service (sub-step)
-      setIsSubStep(true)
-    } else if (currentStep === 2 && isSubStep) {
-      // Moving from service to date/time
-      setIsSubStep(false)
-      setCurrentStep(3)
+    if (currentStep === 2) {
+      // After service selection: auto-select if exactly 1 eligible employee, then skip to step 4
+      if (filteredEmployees.length === 1) {
+        setSelectedEmployeeId(filteredEmployees[0].id)
+        setAnyPerson(false)
+        setCurrentStep(4)
+      } else {
+        setCurrentStep(3)
+      }
     } else if (currentStep < 5) {
       setCurrentStep(currentStep + 1)
     }
-  }, [currentStep, isSubStep])
+  }, [currentStep, filteredEmployees])
 
   const handleBack = useCallback(() => {
-    if (currentStep === 2 && isSubStep) {
-      // Going back from service to category
-      setIsSubStep(false)
+    if (currentStep === 3) {
+      // Going back from employee to service: clear employee selection
+      setSelectedEmployeeId(null)
+      setAnyPerson(false)
+      setCurrentStep(2)
     } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
-      if (currentStep === 3) {
-        setIsSubStep(true) // Go back to service selection
-      }
     }
-  }, [currentStep, isSubStep])
+  }, [currentStep])
 
   // Selection handlers
+  const handleSelectCategory = useCallback((category: ServiceCategory) => {
+    setSelectedCategory(category)
+    // Clear downstream selections
+    setSelectedService(null)
+    setSelectedEmployeeId(null)
+    setAnyPerson(false)
+  }, [])
+
+  const handleSelectService = useCallback((service: Service) => {
+    setSelectedService(service)
+    // Clear downstream selections
+    setSelectedEmployeeId(null)
+    setAnyPerson(false)
+  }, [])
+
   const handleSelectEmployee = useCallback((employee: EmployeeUI | null) => {
     setSelectedEmployeeId(employee?.id || null)
   }, [])
@@ -197,16 +223,6 @@ export default function BookingPage() {
   const handleSelectAnyPerson = useCallback((value: boolean) => {
     setAnyPerson(value)
     if (value) setSelectedEmployeeId(null)
-  }, [])
-
-  const handleSelectCategory = useCallback((category: ServiceCategory) => {
-    setSelectedCategory(category)
-    setSelectedService(null)
-    setIsSubStep(true) // Auto-navigate to service sub-step
-  }, [])
-
-  const handleSelectService = useCallback((service: Service) => {
-    setSelectedService(service)
   }, [])
 
   const handleSelectDate = useCallback((date: string) => {
@@ -241,12 +257,14 @@ export default function BookingPage() {
         phone: customerData.phone,
         gender: customerData.gender,
         notes: customerData.notes,
+        privacyConsent: customerData.privacyConsent,
         marketingConsent: customerData.marketingConsent,
+        consentTimestamp: new Date().toISOString(),
       })
 
       if (response.success) {
         setBookingConfirmation(response)
-        setCurrentStep(5)
+        setCurrentStep(6)
       } else {
         alert(response.message || 'Prišlo je do napake pri rezervaciji.')
       }
@@ -260,57 +278,56 @@ export default function BookingPage() {
 
   // Reset handlers
   const handleNewBooking = useCallback(() => {
-    // Keep employee selection, reset everything else
     setSelectedCategory(null)
     setSelectedService(null)
-    setSelectedDate(null)
-    setSelectedTime(null)
-    setAvailableSlots([])
-    setCustomerData(initialCustomerData)
-    setBookingConfirmation(null)
-    setCurrentStep(2)
-    setIsSubStep(false)
-  }, [])
-
-  const handleStartOver = useCallback(() => {
-    // Reset everything
     setSelectedEmployeeId(null)
     setAnyPerson(false)
-    setSelectedCategory(null)
-    setSelectedService(null)
     setSelectedDate(null)
     setSelectedTime(null)
     setAvailableSlots([])
     setCustomerData(initialCustomerData)
     setBookingConfirmation(null)
     setCurrentStep(1)
-    setIsSubStep(false)
+  }, [])
+
+  const handleStartOver = useCallback(() => {
+    setSelectedCategory(null)
+    setSelectedService(null)
+    setSelectedEmployeeId(null)
+    setAnyPerson(false)
+    setSelectedDate(null)
+    setSelectedTime(null)
+    setAvailableSlots([])
+    setCustomerData(initialCustomerData)
+    setBookingConfirmation(null)
+    setCurrentStep(1)
   }, [])
 
   // Validation for Next button
   const canProceed = useMemo(() => {
     switch (currentStep) {
       case 1:
-        return selectedEmployeeId !== null || anyPerson
+        return selectedCategory !== null
       case 2:
-        if (!isSubStep) {
-          return selectedCategory !== null
-        }
         return selectedService !== null
       case 3:
-        return selectedDate !== null && selectedTime !== null
+        if (filteredEmployees.length === 0) return false
+        return selectedEmployeeId !== null || anyPerson
       case 4:
+        return selectedDate !== null && selectedTime !== null
+      case 5:
         return (
           customerData.firstName.trim() !== '' &&
           customerData.lastName.trim() !== '' &&
           customerData.phone.trim() !== '' &&
           customerData.email.trim() !== '' &&
-          customerData.email.includes('@')
+          customerData.email.includes('@') &&
+          customerData.privacyConsent
         )
       default:
         return false
     }
-  }, [currentStep, isSubStep, selectedEmployeeId, anyPerson, selectedCategory, selectedService, selectedDate, selectedTime, customerData])
+  }, [currentStep, selectedCategory, selectedService, filteredEmployees, selectedEmployeeId, anyPerson, selectedDate, selectedTime, customerData])
 
   // Loading state
   if (loading) {
@@ -334,19 +351,20 @@ export default function BookingPage() {
       className="min-h-screen"
       style={{
         background: `linear-gradient(135deg, ${theme.bgFrom}, ${theme.bgTo})`,
-      }}
+        ...cssVars,
+      } as React.CSSProperties}
     >
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[var(--header-bg)] border-b border-[var(--b1)]">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-display font-semibold text-white">
+            <h1 className="text-xl font-display font-semibold text-[var(--t-primary)]">
               {companyName || 'Rezervacija'}
             </h1>
           </div>
 
-          {/* Stepper */}
-          {currentStep < 5 && (
+          {/* Stepper - show for steps 1-5, not confirmation (6) */}
+          {currentStep < 6 && (
             <BookingStepper currentStep={currentStep} theme={theme} />
           )}
         </div>
@@ -358,21 +376,8 @@ export default function BookingPage() {
           {/* Content area */}
           <div className="flex-1 overflow-hidden">
             <AnimatePresence mode="wait">
-              {/* Step 1: Employee Selection */}
+              {/* Step 1: Category Selection */}
               {currentStep === 1 && (
-                <StepEmployeeSelection
-                  key="employee"
-                  theme={theme}
-                  employees={data?.employees_ui || []}
-                  selectedEmployeeId={selectedEmployeeId}
-                  anyPerson={anyPerson}
-                  onSelectEmployee={handleSelectEmployee}
-                  onSelectAnyPerson={handleSelectAnyPerson}
-                />
-              )}
-
-              {/* Step 2a: Category Selection */}
-              {currentStep === 2 && !isSubStep && (
                 <StepCategorySelection
                   key="category"
                   theme={theme}
@@ -384,8 +389,8 @@ export default function BookingPage() {
                 />
               )}
 
-              {/* Step 2b: Service Selection */}
-              {currentStep === 2 && isSubStep && (
+              {/* Step 2: Service Selection */}
+              {currentStep === 2 && (
                 <StepServiceSelection
                   key="service"
                   theme={theme}
@@ -393,12 +398,25 @@ export default function BookingPage() {
                   selectedServiceId={selectedService?.id || null}
                   categoryName={selectedCategory?.name || ''}
                   onSelectService={handleSelectService}
-                  onBack={() => setIsSubStep(false)}
+                  onBack={() => setCurrentStep(1)}
                 />
               )}
 
-              {/* Step 3: Date/Time Selection */}
+              {/* Step 3: Employee Selection (filtered by service) */}
               {currentStep === 3 && (
+                <StepEmployeeSelection
+                  key="employee"
+                  theme={theme}
+                  employees={filteredEmployees}
+                  selectedEmployeeId={selectedEmployeeId}
+                  anyPerson={anyPerson}
+                  onSelectEmployee={handleSelectEmployee}
+                  onSelectAnyPerson={handleSelectAnyPerson}
+                />
+              )}
+
+              {/* Step 4: Date/Time Selection */}
+              {currentStep === 4 && (
                 <StepDateTimeSelection
                   key="datetime"
                   theme={theme}
@@ -411,8 +429,8 @@ export default function BookingPage() {
                 />
               )}
 
-              {/* Step 4: Customer Details */}
-              {currentStep === 4 && (
+              {/* Step 5: Customer Details */}
+              {currentStep === 5 && (
                 <StepCustomerDetails
                   key="customer"
                   theme={theme}
@@ -428,8 +446,8 @@ export default function BookingPage() {
                 />
               )}
 
-              {/* Step 5: Confirmation */}
-              {currentStep === 5 && (
+              {/* Step 6: Confirmation */}
+              {currentStep === 6 && (
                 <StepConfirmation
                   key="confirmation"
                   theme={theme}
@@ -445,8 +463,8 @@ export default function BookingPage() {
             </AnimatePresence>
           </div>
 
-          {/* Summary Panel - Desktop only, Steps 1-3 */}
-          {currentStep < 4 && (
+          {/* Summary Panel - Desktop only, Steps 1-4 */}
+          {currentStep < 5 && (
             <div className="hidden xl:block w-80 flex-shrink-0">
               <SummaryPanel
                 theme={theme}
@@ -462,11 +480,11 @@ export default function BookingPage() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      {currentStep < 5 && (
+      {currentStep < 6 && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
-          className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/10 border-t border-white/20"
+          className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl bg-[var(--nav-bg)] border-t border-[var(--b2)]"
         >
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between gap-4">
@@ -476,7 +494,7 @@ export default function BookingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleBack}
-                  className="px-6 py-3 rounded-xl font-display font-medium text-white/80 bg-white/10 border border-white/20 hover:bg-white/20 transition-all"
+                  className="px-6 py-3 rounded-xl font-display font-medium text-[var(--t-soft)] bg-[var(--s2)] border border-[var(--b2)] hover:bg-[var(--s3)] transition-all"
                 >
                   Nazaj
                 </motion.button>
@@ -488,15 +506,15 @@ export default function BookingPage() {
               {/* Price - Mobile only */}
               {selectedService && (selectedService.cena ?? selectedService.price) != null && (
                 <div className="xl:hidden text-center">
-                  <p className="text-white/60 font-display text-xs">Skupaj</p>
+                  <p className="text-[var(--t-muted)] font-display text-xs">Skupaj</p>
                   <p className="text-xl font-display font-bold" style={{ color: theme.primaryColor }}>
                     {Number(selectedService.cena ?? selectedService.price).toFixed(2)} €
                   </p>
                 </div>
               )}
 
-              {/* Next/Submit Button */}
-              {currentStep < 4 && (
+              {/* Next Button - Steps 1-4 */}
+              {currentStep < 5 && (
                 <motion.button
                   whileHover={{ scale: canProceed ? 1.02 : 1 }}
                   whileTap={{ scale: canProceed ? 0.98 : 1 }}
@@ -519,8 +537,8 @@ export default function BookingPage() {
                 </motion.button>
               )}
 
-              {/* Submit Button - Mobile, Step 4 */}
-              {currentStep === 4 && (
+              {/* Submit Button - Mobile, Step 5 */}
+              {currentStep === 5 && (
                 <motion.button
                   whileHover={{ scale: canProceed && !submitting ? 1.02 : 1 }}
                   whileTap={{ scale: canProceed && !submitting ? 0.98 : 1 }}
@@ -561,7 +579,7 @@ export default function BookingPage() {
       )}
 
       {/* Bottom padding to account for fixed nav */}
-      {currentStep < 5 && <div className="h-24" />}
+      {currentStep < 6 && <div className="h-24" />}
     </div>
   )
 }

@@ -73,10 +73,10 @@ export default function StepCategorySelection({
       className="w-full"
     >
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-display font-semibold text-white mb-2">
+        <h2 className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-2">
           Izberite kategorijo
         </h2>
-        <p className="text-white/60 font-display">
+        <p className="text-[var(--t-muted)] font-display">
           Katero vrsto storitve potrebujete?
         </p>
       </div>
@@ -102,8 +102,8 @@ export default function StepCategorySelection({
                 relative p-6 rounded-2xl border-2 transition-all duration-300
                 text-left w-full overflow-hidden group
                 ${isSelected
-                  ? 'bg-white/20 border-white'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-[var(--s3)] border-[var(--b2)]'
+                  : 'bg-[var(--s1)] border-[var(--b1)] hover:bg-[var(--s2)] hover:border-[var(--b2)]'
                 }
               `}
               style={isSelected ? {
@@ -122,7 +122,7 @@ export default function StepCategorySelection({
               <div className="relative flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <p className="text-white font-display font-semibold text-lg truncate">
+                    <p className="text-[var(--t-primary)] font-display font-semibold text-lg truncate">
                       {category.name}
                     </p>
                     <span
@@ -136,7 +136,7 @@ export default function StepCategorySelection({
                     </span>
                   </div>
                   {category.description && (
-                    <p className="text-white/60 font-display text-sm mt-1 line-clamp-2">
+                    <p className="text-[var(--t-muted)] font-display text-sm mt-1 line-clamp-2">
                       {category.description}
                     </p>
                   )}

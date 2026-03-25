@@ -43,7 +43,7 @@ export default function StepCustomerDetails({
   const isPhoneValid = customerData.phone.trim() !== ''
   const isEmailValid = customerData.email.trim() !== '' && customerData.email.includes('@')
 
-  const isFormValid = isFirstNameValid && isLastNameValid && isPhoneValid && isEmailValid
+  const isFormValid = isFirstNameValid && isLastNameValid && isPhoneValid && isEmailValid && customerData.privacyConsent
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,13 +57,13 @@ export default function StepCustomerDetails({
   }
 
   const inputClasses = (isValid: boolean) => `
-    w-full px-4 py-3 rounded-xl bg-white/10 border
-    text-white placeholder-white/40 font-display
-    focus:outline-none focus:bg-white/15
+    w-full px-4 py-3 rounded-xl bg-[var(--s2)] border
+    text-[var(--t-primary)] placeholder-[var(--t-faint)] font-display
+    focus:outline-none focus:bg-[var(--s2h)]
     transition-all duration-200
     ${showErrors && !isValid
       ? 'border-red-400/70 focus:border-red-400'
-      : 'border-white/20 focus:border-white/40'
+      : 'border-[var(--b2)] focus:border-[var(--b3)]'
     }
   `
 
@@ -76,10 +76,10 @@ export default function StepCustomerDetails({
       className="w-full"
     >
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-display font-semibold text-white mb-2">
+        <h2 className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-2">
           Vaši podatki
         </h2>
-        <p className="text-white/60 font-display">
+        <p className="text-[var(--t-muted)] font-display">
           Izpolnite podatke za dokončanje rezervacije
         </p>
       </div>
@@ -90,13 +90,13 @@ export default function StepCustomerDetails({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
+            className="bg-[var(--s2)] backdrop-blur-xl rounded-2xl p-6 border border-[var(--b2)]"
           >
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-white/70 font-display text-sm mb-2">
+                  <label className="block text-[var(--t-soft)] font-display text-sm mb-2">
                     Ime <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -112,7 +112,7 @@ export default function StepCustomerDetails({
                   )}
                 </div>
                 <div>
-                  <label className="block text-white/70 font-display text-sm mb-2">
+                  <label className="block text-[var(--t-soft)] font-display text-sm mb-2">
                     Priimek <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -131,7 +131,7 @@ export default function StepCustomerDetails({
 
               {/* Phone */}
               <div>
-                <label className="block text-white/70 font-display text-sm mb-2">
+                <label className="block text-[var(--t-soft)] font-display text-sm mb-2">
                   Telefon <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -149,7 +149,7 @@ export default function StepCustomerDetails({
 
               {/* Email */}
               <div>
-                <label className="block text-white/70 font-display text-sm mb-2">
+                <label className="block text-[var(--t-soft)] font-display text-sm mb-2">
                   E-pošta <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -171,7 +171,7 @@ export default function StepCustomerDetails({
 
               {/* Gender */}
               <div>
-                <label className="block text-white/70 font-display text-sm mb-2">Spol</label>
+                <label className="block text-[var(--t-soft)] font-display text-sm mb-2">Spol</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['Moški', 'Ženska', 'Drugo'] as const).map((gender) => (
                     <button
@@ -182,7 +182,7 @@ export default function StepCustomerDetails({
                         py-2.5 px-3 rounded-xl font-display font-medium text-sm transition-all duration-200
                         ${customerData.gender === gender
                           ? 'text-white'
-                          : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
+                          : 'bg-[var(--s1)] text-[var(--t-soft)] hover:bg-[var(--s2)] border border-[var(--b1)]'
                         }
                       `}
                       style={customerData.gender === gender ? {
@@ -197,7 +197,7 @@ export default function StepCustomerDetails({
 
               {/* Notes */}
               <div>
-                <label className="block text-white/70 font-display text-sm mb-2">Opombe</label>
+                <label className="block text-[var(--t-soft)] font-display text-sm mb-2">Opombe</label>
                 <textarea
                   value={customerData.notes}
                   onChange={(e) => onUpdateCustomerData({ notes: e.target.value })}
@@ -205,6 +205,70 @@ export default function StepCustomerDetails({
                   rows={3}
                   className={`${inputClasses(true)} resize-none`}
                 />
+              </div>
+
+              {/* Privacy Consent - REQUIRED */}
+              <div className="space-y-1">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative mt-0.5 flex-shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={customerData.privacyConsent}
+                      onChange={(e) => onUpdateCustomerData({ privacyConsent: e.target.checked })}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`
+                        w-5 h-5 rounded-md border-2 transition-all duration-200
+                        flex items-center justify-center
+                        ${customerData.privacyConsent
+                          ? 'border-transparent'
+                          : showErrors
+                            ? 'border-red-400 group-hover:border-red-300'
+                            : 'border-[var(--b2)] group-hover:border-[var(--b3)]'
+                        }
+                      `}
+                      style={customerData.privacyConsent ? {
+                        backgroundColor: theme.primaryColor,
+                      } : {}}
+                    >
+                      {customerData.privacyConsent && (
+                        <motion.svg
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </motion.svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[var(--t-soft)] font-display text-sm">
+                    Strinjam se z obdelavo osebnih podatkov za namen rezervacije termina.{' '}
+                    <a
+                      href="https://jedroplus.com/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-white transition-colors"
+                      style={{ color: theme.primaryColor }}
+                    >
+                      Preberi politiko zasebnosti
+                    </a>
+                    <span className="text-red-400 ml-1">*</span>
+                  </span>
+                </label>
+                {showErrors && !customerData.privacyConsent && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-400 text-xs font-display ml-8"
+                  >
+                    Za oddajo rezervacije se morate strinjati s politiko zasebnosti.
+                  </motion.p>
+                )}
               </div>
 
               {/* Marketing Consent */}
@@ -222,7 +286,7 @@ export default function StepCustomerDetails({
                       flex items-center justify-center
                       ${customerData.marketingConsent
                         ? 'border-transparent'
-                        : 'border-white/30 group-hover:border-white/50'
+                        : 'border-[var(--b2)] group-hover:border-[var(--b3)]'
                       }
                     `}
                     style={customerData.marketingConsent ? {
@@ -243,8 +307,8 @@ export default function StepCustomerDetails({
                     )}
                   </div>
                 </div>
-                <span className="text-white/60 font-display text-sm">
-                  Želim prejemati novice in posebne ponudbe
+                <span className="text-[var(--t-muted)] font-display text-sm">
+                  Želim prejemati obvestila o promocijah in novostih.
                 </span>
               </label>
             </form>
@@ -255,17 +319,17 @@ export default function StepCustomerDetails({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
+            className="bg-[var(--s2)] backdrop-blur-xl rounded-2xl p-6 border border-[var(--b2)]"
           >
-            <h3 className="text-lg font-display font-semibold text-white mb-6">
+            <h3 className="text-lg font-display font-semibold text-[var(--t-primary)] mb-6">
               Povzetek rezervacije
             </h3>
 
             <div className="space-y-4">
               {/* Employee */}
               <div>
-                <p className="text-xs font-display text-white/50">Oseba</p>
-                <p className="text-white font-display font-medium">
+                <p className="text-xs font-display text-[var(--t-faint)]">Oseba</p>
+                <p className="text-[var(--t-primary)] font-display font-medium">
                   {anyPerson ? 'Kdorkoli' : selectedEmployee?.label}
                 </p>
               </div>
@@ -273,10 +337,10 @@ export default function StepCustomerDetails({
               {/* Service */}
               {selectedService && (
                 <div>
-                  <p className="text-xs font-display text-white/50">Storitev</p>
-                  <p className="text-white font-display font-medium">{getServiceName(selectedService)}</p>
+                  <p className="text-xs font-display text-[var(--t-faint)]">Storitev</p>
+                  <p className="text-[var(--t-primary)] font-display font-medium">{getServiceName(selectedService)}</p>
                   {getServiceDuration(selectedService) != null && (
-                    <p className="text-white/60 font-display text-sm">{getServiceDuration(selectedService)} min</p>
+                    <p className="text-[var(--t-muted)] font-display text-sm">{getServiceDuration(selectedService)} min</p>
                   )}
                 </div>
               )}
@@ -284,21 +348,21 @@ export default function StepCustomerDetails({
               {/* Date & Time */}
               {selectedDate && selectedTime && (
                 <div>
-                  <p className="text-xs font-display text-white/50">Datum in čas</p>
-                  <p className="text-white font-display font-medium">
+                  <p className="text-xs font-display text-[var(--t-faint)]">Datum in čas</p>
+                  <p className="text-[var(--t-primary)] font-display font-medium">
                     {format(parseISO(selectedDate), 'd. MMMM yyyy', { locale: sl })}
                   </p>
-                  <p className="text-white/60 font-display text-sm">ob {selectedTime}</p>
+                  <p className="text-[var(--t-muted)] font-display text-sm">ob {selectedTime}</p>
                 </div>
               )}
 
               {/* Divider */}
-              <div className="border-t border-white/10 my-4" />
+              <div className="border-t border-[var(--b1)] my-4" />
 
               {/* Total */}
               {selectedService && getServicePrice(selectedService) != null && (
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70 font-display">Skupaj</span>
+                  <span className="text-[var(--t-soft)] font-display">Skupaj</span>
                   <span
                     className="text-3xl font-display font-bold"
                     style={{ color: theme.primaryColor }}

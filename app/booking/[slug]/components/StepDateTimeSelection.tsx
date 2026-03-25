@@ -103,10 +103,10 @@ export default function StepDateTimeSelection({
       className="w-full"
     >
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-display font-semibold text-white mb-2">
+        <h2 className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-2">
           Izberite datum in čas
         </h2>
-        <p className="text-white/60 font-display">
+        <p className="text-[var(--t-muted)] font-display">
           Kdaj bi želeli priti?
         </p>
       </div>
@@ -117,7 +117,7 @@ export default function StepDateTimeSelection({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20"
+            className="bg-[var(--s2)] backdrop-blur-xl rounded-2xl p-5 border border-[var(--b2)]"
           >
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-4">
@@ -126,8 +126,8 @@ export default function StepDateTimeSelection({
                 disabled={!canGoPrevMonth}
                 className={`p-2 rounded-xl transition-all ${
                   canGoPrevMonth
-                    ? 'hover:bg-white/10 text-white'
-                    : 'text-white/30 cursor-not-allowed'
+                    ? 'hover:bg-[var(--s2)] text-[var(--t-primary)]'
+                    : 'text-[var(--t-disabled)] cursor-not-allowed'
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,13 +135,13 @@ export default function StepDateTimeSelection({
                 </svg>
               </button>
 
-              <h3 className="text-white font-display font-semibold capitalize">
+              <h3 className="text-[var(--t-primary)] font-display font-semibold capitalize">
                 {format(currentMonth, 'LLLL yyyy', { locale: sl })}
               </h3>
 
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-xl hover:bg-white/10 text-white transition-all"
+                className="p-2 rounded-xl hover:bg-[var(--s2)] text-[var(--t-primary)] transition-all"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -154,7 +154,7 @@ export default function StepDateTimeSelection({
               {WEEKDAY_NAMES.map((day) => (
                 <div
                   key={day}
-                  className="text-center text-white/50 font-display text-xs font-medium py-2"
+                  className="text-center text-[var(--t-faint)] font-display text-xs font-medium py-2"
                 >
                   {day}
                 </div>
@@ -184,12 +184,12 @@ export default function StepDateTimeSelection({
                       aspect-square rounded-xl flex items-center justify-center text-sm font-display font-medium
                       transition-all duration-200
                       ${isPast
-                        ? 'text-white/20 cursor-not-allowed'
+                        ? 'text-[var(--t-disabled)] cursor-not-allowed'
                         : isSelected
                           ? 'text-white'
                           : isDayToday
-                            ? 'text-white bg-white/10 hover:bg-white/20'
-                            : 'text-white/80 hover:bg-white/10'
+                            ? 'text-[var(--t-primary)] bg-[var(--s2)] hover:bg-[var(--s3)]'
+                            : 'text-[var(--t-soft)] hover:bg-[var(--s2)]'
                       }
                     `}
                     style={isSelected ? {
@@ -209,15 +209,15 @@ export default function StepDateTimeSelection({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20"
+            className="bg-[var(--s2)] backdrop-blur-xl rounded-2xl p-5 border border-[var(--b2)]"
           >
-            <h3 className="text-white font-display font-semibold mb-4">
+            <h3 className="text-[var(--t-primary)] font-display font-semibold mb-4">
               Razpoložljivi termini
             </h3>
 
             {!selectedDate ? (
               <div className="text-center py-12">
-                <p className="text-white/60 font-display">
+                <p className="text-[var(--t-muted)] font-display">
                   Najprej izberite datum
                 </p>
               </div>
@@ -233,17 +233,17 @@ export default function StepDateTimeSelection({
                     <motion.div
                       key={i}
                       variants={itemVariants}
-                      className="h-11 rounded-xl bg-white/10 animate-pulse"
+                      className="h-11 rounded-xl bg-[var(--s2)] animate-pulse"
                     />
                   ))}
                 </motion.div>
               </div>
             ) : availableSlots.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-white/60 font-display">
+                <p className="text-[var(--t-muted)] font-display">
                   Ta dan ni prostih terminov
                 </p>
-                <p className="text-white/40 font-display text-sm mt-1">
+                <p className="text-[var(--t-faint)] font-display text-sm mt-1">
                   Prosimo, izberite drug datum
                 </p>
               </div>
@@ -271,7 +271,7 @@ export default function StepDateTimeSelection({
                             py-2.5 px-3 rounded-xl font-display font-medium text-sm transition-all duration-200
                             ${isSelected
                               ? 'text-white'
-                              : 'bg-white/5 text-white/80 hover:bg-white/15 border border-white/10'
+                              : 'bg-[var(--s1)] text-[var(--t-soft)] hover:bg-[var(--s2h)] border border-[var(--b1)]'
                             }
                           `}
                           style={isSelected ? {
@@ -297,7 +297,7 @@ export default function StepDateTimeSelection({
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 text-center"
           >
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[var(--s2)] backdrop-blur-xl border border-[var(--b2)]">
               <svg
                 className="w-5 h-5"
                 style={{ color: theme.primaryColor }}
@@ -307,7 +307,7 @@ export default function StepDateTimeSelection({
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="text-white font-display">
+              <span className="text-[var(--t-primary)] font-display">
                 {format(new Date(selectedDate), 'd. MMMM yyyy', { locale: sl })} ob {selectedTime}
               </span>
             </div>

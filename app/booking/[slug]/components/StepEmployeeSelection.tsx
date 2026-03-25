@@ -54,10 +54,10 @@ export default function StepEmployeeSelection({
       className="w-full"
     >
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-display font-semibold text-white mb-2">
+        <h2 className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-2">
           Izberite osebo
         </h2>
-        <p className="text-white/60 font-display">
+        <p className="text-[var(--t-muted)] font-display">
           Kdo naj izvede vašo storitev?
         </p>
       </div>
@@ -78,8 +78,8 @@ export default function StepEmployeeSelection({
             relative p-5 rounded-2xl border-2 transition-all duration-300
             flex items-center gap-4 text-left w-full
             ${anyPerson
-              ? 'bg-white/20 border-white'
-              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+              ? 'bg-[var(--s3)] border-[var(--b2)]'
+              : 'bg-[var(--s1)] border-[var(--b1)] hover:bg-[var(--s2)] hover:border-[var(--b2)]'
             }
           `}
           style={anyPerson ? {
@@ -88,8 +88,8 @@ export default function StepEmployeeSelection({
           } : {}}
         >
           <div className="flex-1">
-            <p className="text-white font-display font-semibold text-lg">Kdorkoli</p>
-            <p className="text-white/60 font-display text-sm">Izberite najboljši termin zame</p>
+            <p className="text-[var(--t-primary)] font-display font-semibold text-lg">Kdorkoli</p>
+            <p className="text-[var(--t-muted)] font-display text-sm">Izberite najboljši termin zame</p>
           </div>
 
           {anyPerson && (
@@ -108,10 +108,25 @@ export default function StepEmployeeSelection({
 
         {/* Divider */}
         <div className="flex items-center gap-4 my-2">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/40 text-sm font-display">ali izberite osebo</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-[var(--b1)]" />
+          <span className="text-[var(--t-faint)] text-sm font-display">ali izberite osebo</span>
+          <div className="flex-1 h-px bg-[var(--b1)]" />
         </div>
+
+        {/* Empty state: no eligible employees for this service */}
+        {employees.length === 0 && (
+          <motion.div
+            variants={itemVariants}
+            className="text-center py-10"
+          >
+            <div className="w-14 h-14 rounded-full bg-[var(--s2)] flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-[var(--t-faint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <p className="text-[var(--t-muted)] font-display">Za to storitev ni na voljo nobenega osebja.</p>
+          </motion.div>
+        )}
 
         {/* Employees */}
         {employees.map((employee) => {
@@ -128,8 +143,8 @@ export default function StepEmployeeSelection({
                 relative p-5 rounded-2xl backdrop-blur-xl border-2 transition-all duration-300
                 flex items-center gap-4 text-left w-full
                 ${isSelected
-                  ? 'bg-white/20 border-white'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-[var(--s3)] border-[var(--b2)]'
+                  : 'bg-[var(--s1)] border-[var(--b1)] hover:bg-[var(--s2)] hover:border-[var(--b2)]'
                 }
               `}
               style={isSelected ? {
@@ -138,9 +153,9 @@ export default function StepEmployeeSelection({
               } : {}}
             >
               <div className="flex-1">
-                <p className="text-white font-display font-semibold text-lg">{employee.label}</p>
+                <p className="text-[var(--t-primary)] font-display font-semibold text-lg">{employee.label}</p>
                 {employee.subtitle && (
-                  <p className="text-white/60 font-display text-sm">{employee.subtitle}</p>
+                  <p className="text-[var(--t-muted)] font-display text-sm">{employee.subtitle}</p>
                 )}
               </div>
 

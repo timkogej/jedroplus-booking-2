@@ -56,7 +56,7 @@ export default function StepServiceSelection({
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ x: -4 }}
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-4 transition-colors"
+          className="inline-flex items-center gap-2 text-[var(--t-muted)] hover:text-[var(--t-primary)] mb-4 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -64,10 +64,10 @@ export default function StepServiceSelection({
           <span className="text-sm font-display">Nazaj na kategorije</span>
         </motion.button>
 
-        <h2 className="text-3xl font-display font-semibold text-white mb-2">
+        <h2 className="text-3xl font-display font-semibold text-[var(--t-primary)] mb-2">
           {categoryName}
         </h2>
-        <p className="text-white/60 font-display">
+        <p className="text-[var(--t-muted)] font-display">
           Izberite storitev, ki jo želite
         </p>
       </div>
@@ -96,8 +96,8 @@ export default function StepServiceSelection({
                 relative p-5 rounded-2xl border-2 transition-all duration-300
                 text-left w-full
                 ${isSelected
-                  ? 'bg-white/20 border-white'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-[var(--s3)] border-[var(--b2)]'
+                  : 'bg-[var(--s1)] border-[var(--b1)] hover:bg-[var(--s2)] hover:border-[var(--b2)]'
                 }
               `}
               style={isSelected ? {
@@ -107,18 +107,18 @@ export default function StepServiceSelection({
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-display font-semibold text-lg mb-1">
+                  <h3 className="text-[var(--t-primary)] font-display font-semibold text-lg mb-1">
                     {serviceName}
                   </h3>
 
                   {serviceDesc && (
-                    <p className="text-white/60 font-display text-sm mb-3 line-clamp-2">
+                    <p className="text-[var(--t-muted)] font-display text-sm mb-3 line-clamp-2">
                       {serviceDesc}
                     </p>
                   )}
 
                   {serviceDuration != null && (
-                    <p className="text-white/50 font-display text-sm">
+                    <p className="text-[var(--t-faint)] font-display text-sm">
                       {serviceDuration} min
                     </p>
                   )}
@@ -159,7 +159,7 @@ export default function StepServiceSelection({
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >
-            <p className="text-white/60 font-display">V tej kategoriji ni storitev</p>
+            <p className="text-[var(--t-muted)] font-display">V tej kategoriji ni storitev</p>
             <button
               onClick={onBack}
               className="mt-4 text-sm font-display hover:underline"

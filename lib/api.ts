@@ -27,6 +27,7 @@ export async function getAvailableSlots(params: {
   serviceId: string
   employeeId: string | null
   anyPerson: boolean
+  eligibleEmployeeIds?: string[]
 }): Promise<SlotsResponse> {
   const response = await fetch(BASE_URL, {
     method: 'POST',
@@ -40,6 +41,7 @@ export async function getAvailableSlots(params: {
       serviceId: params.serviceId,
       employeeId: params.employeeId,
       any_person: params.anyPerson,
+      ...(params.anyPerson && params.eligibleEmployeeIds ? { employeeIds: params.eligibleEmployeeIds } : {}),
     }),
   })
 
@@ -77,7 +79,9 @@ export async function createBooking(params: {
   phone: string
   gender: string
   notes: string
+  privacyConsent: boolean
   marketingConsent: boolean
+  consentTimestamp: string
 }): Promise<BookingConfirmation> {
   const response = await fetch(BASE_URL, {
     method: 'POST',
@@ -99,7 +103,9 @@ export async function createBooking(params: {
       customerPhone: params.phone,
       customerGender: params.gender,
       customerNote: params.notes,
+      gdprPrivacyConsent: params.privacyConsent,
       gdprSendMarketing: params.marketingConsent,
+      gdprConsentTimestamp: params.consentTimestamp,
     }),
   })
 
